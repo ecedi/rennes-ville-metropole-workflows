@@ -11,17 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🔄 Checkout avec sous-modules
+      - name: Checkout avec sous-modules
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.ECEDI_PAT_TOKEN }}
           submodules: true
 
+      - name: 🔍 Check if submodule exists (and add it if missing)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          mkdir -p modules
+          
+          if [ ! -d "modules/search-engine-indexer/.git" ]; then
+            echo "🔧 Submodule 'search-engine-indexer' is missing. Adding it..."
+            git submodule add https://github.com/osunyorg/rennes-search-engine-indexer.git modules/search-engine-indexer
+            git add .gitmodules modules/search-engine-indexer
+            git commit -m "➕ Added 'search-engine-indexer' submodule"
+          else
+            echo "✅ Submodule already present."
+          fi
+
       - name: 🧩 Mise à jour du submodule indexer
         run: |
           git submodule update --remote modules/search-engine-indexer
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
+          git add modules/search-engine-indexer
           git commit -m "🚀 Updated Search engine indexer version" || echo "No changes to commit"
           git push origin main

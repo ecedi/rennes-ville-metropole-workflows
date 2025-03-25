@@ -17,7 +17,7 @@ It aims to simplify maintenance and unify CI/CD processes across multiple reposi
 ### 🎨 Update Rennes Theme
 
 - File: `.github/workflows/ecedi-update-submodules.yml`
-- Updates the Hugo theme submodule [`rennes-hugo-theme`](https://github.com/osunyorg/rennes-theme).
+- Updates the Hugo theme submodule [`themes/rennes-hugo-theme`](https://github.com/osunyorg/rennes-theme).
 
 ### 🧱 Update Search Engine Indexer Submodule
 
