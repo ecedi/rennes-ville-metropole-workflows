@@ -1,0 +1,37 @@
+name: ecedi - Content indexation
+
+on:
+  workflow_call:
+    secrets:
+      ECEDI_INDEXER_API_URL:
+        required: true
+      ECEDI_INDEXER_API_KEY:
+        required: true
+      ECEDI_API_BASIC_AUTH:
+        required: false
+
+jobs:
+  index-content:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install PHP et Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          extensions: yaml
+
+      - name: Install PHP dependencies
+        run: composer install --working-dir=modules/search-engine-indexer
+
+      - name: Indexation
+        run: php modules/search-engine-indexer/index.php
+        env:
+          API_URL: ${{ secrets.ECEDI_INDEXER_API_URL }}
+          API_KEY: ${{ secrets.ECEDI_INDEXER_API_KEY }}
+          API_BASIC_AUTH: ${{ secrets.ECEDI_API_BASIC_AUTH || '' }}

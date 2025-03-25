@@ -1,0 +1,27 @@
+name: ecedi - Update Search Engine Indexer Submodule
+
+on:
+  workflow_call:
+    secrets:
+      ECEDI_PAT_TOKEN:
+        required: true
+
+jobs:
+  update-search-engine-indexer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Checkout avec sous-modules
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ECEDI_PAT_TOKEN }}
+          submodules: true
+
+      - name: 🧩 Mise à jour du submodule indexer
+        run: |
+          git submodule update --remote modules/search-engine-indexer
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "🚀 Updated Search engine indexer version" || echo "No changes to commit"
+          git push origin main
