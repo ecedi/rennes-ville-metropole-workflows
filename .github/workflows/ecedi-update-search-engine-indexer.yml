@@ -38,4 +38,5 @@ jobs:
           git submodule update --remote modules/search-engine-indexer
           git add modules/search-engine-indexer
           git commit -m "🚀 Updated Search engine indexer version" || echo "No changes to commit"
+          git pull --rebase origin main
           git push origin main
