@@ -24,7 +24,7 @@ jobs:
           
           mkdir -p modules
           
-          if git config --file .gitmodules --get-regexp path | grep -q "^submodule\.search-engine-indexer\.path"; then
+          if git config --file .gitmodules --get-regexp path | grep -q "modules/search-engine-indexer"; then
             echo "✅ Submodule already declared in .gitmodules."
           else
             echo "🔧 Submodule 'search-engine-indexer' is missing. Adding it..."
