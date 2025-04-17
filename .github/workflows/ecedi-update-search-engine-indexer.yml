@@ -24,13 +24,13 @@ jobs:
           
           mkdir -p modules
           
-          if [ ! -d "modules/search-engine-indexer/.git" ]; then
+          if git config --file .gitmodules --get-regexp path | grep -q "^submodule\.search-engine-indexer\.path"; then
+            echo "✅ Submodule already declared in .gitmodules."
+          else
             echo "🔧 Submodule 'search-engine-indexer' is missing. Adding it..."
             git submodule add https://github.com/osunyorg/rennes-search-engine-indexer.git modules/search-engine-indexer
             git add .gitmodules modules/search-engine-indexer
-            git commit -m "➕ Added 'search-engine-indexer' submodule"
-          else
-            echo "✅ Submodule already present."
+            git commit -m "Added 'search-engine-indexer' submodule"
           fi
 
       - name: 🧩 Mise à jour du submodule indexer
