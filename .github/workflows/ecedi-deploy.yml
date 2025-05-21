@@ -1,9 +1,17 @@
 name: ecedi - Deployment
 
 on:
-  push:
-    branches:
-      - main  # Set a branch to deploy
+  workflow_call:
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_HOST:
+        required: true
+      SSH_USER:
+        required: true
+      SSH_WORKDIR:
+        required: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
