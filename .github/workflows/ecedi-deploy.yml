@@ -24,23 +24,24 @@ jobs:
           submodules: true  # Fetch Hugo themes (true OR recursive)
           fetch-depth: 1    # Fetch all history for .GitInfo and .Lastmod
 
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: '0.136.5'
-          extended: true
-
-      - name: Setup Node
+      - name: Installation de Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: 'lts/*'
           cache: 'yarn'
 
-      - name: Install JS dependencies
-        run: yarn install --frozen-lockfile
+      - name: Installation des dépendances JavaScript
+        run: yarn install
 
-      - name: Build
-        run: hugo -e production --minify
+      - name: Installation de Hugo
+        uses: noesya/actions-hugo@release
+        with:
+          hugo-version: '0.145.0'
+          extended: true
+          withdeploy: true
+
+      - name: Compilation du site
+        run: yarn osuny build
 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
