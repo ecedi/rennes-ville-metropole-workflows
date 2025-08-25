@@ -39,3 +39,4 @@ jobs:
           API_URL: ${{ inputs.api_url || secrets.ECEDI_INDEXER_API_URL }} #${{ inputs.api_url || secrets.ECEDI_INDEXER_API_URL }}
           API_KEY: ${{ secrets.ECEDI_INDEXER_API_KEY }}
           API_BASIC_AUTH: ${{ secrets.ECEDI_API_BASIC_AUTH || '' }}
+          APP_ENV: ${{ inputs.app_env }}
