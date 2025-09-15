@@ -12,8 +12,8 @@ on:
         required: false
         type: string
     secrets:
-      ECEDI_INDEXER_API_URL:
-        required: true
+      ECEDI_INDEXER_API_URL: #To remove when new search engine version in prod
+        required: false
       ECEDI_INDEXER_API_KEY:
         required: true
       ECEDI_API_BASIC_AUTH:
