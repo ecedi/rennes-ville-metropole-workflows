@@ -36,10 +36,20 @@ jobs:
           extensions: yaml
 
       - name: Install PHP dependencies
-        run: composer install --working-dir=modules/search-engine-indexer
+        run: |
+          if [ "${{ inputs.app_env }}" = "staging" ]; then
+            composer install --working-dir=modules/search-engine-indexer-staging
+          else
+            composer install --working-dir=modules/search-engine-indexer
+          fi
 
       - name: Indexation
-        run: php modules/search-engine-indexer/index.php
+        run: |
+          if [ "${{ inputs.app_env }}" = "staging" ]; then
+            php modules/search-engine-indexer-staging/index.php
+          else
+            php modules/search-engine-indexer/index.php
+          fi
         env:
           API_URL: ${{ inputs.api_url }}
           API_KEY: ${{ secrets.ECEDI_INDEXER_API_KEY }}
