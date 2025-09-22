@@ -32,11 +32,20 @@ jobs:
             git add .gitmodules modules/search-engine-indexer
             git commit -m "Added 'search-engine-indexer' submodule"
           fi
+          
+          if git config --file .gitmodules --get-regexp path | grep -q "modules/search-engine-indexer-staging"; then
+            echo "✅ Submodule already declared in .gitmodules."
+          else
+            echo "🔧 Submodule 'search-engine-indexer-staging' is missing. Adding it..."
+            git submodule add -b staging https://github.com/osunyorg/rennes-search-engine-indexer.git modules/search-engine-indexer-staging
+            git add .gitmodules modules/search-engine-indexer-staging
+            git commit -m "Added 'search-engine-indexer-staging' submodule"
+          fi
 
       - name: 🧩 Mise à jour du submodule indexer
         run: |
-          git submodule update --remote modules/search-engine-indexer
-          git add modules/search-engine-indexer
+          git submodule update --remote modules/search-engine-indexer modules/search-engine-indexer-staging
+          git add modules/search-engine-indexer modules/search-engine-indexer-staging
           git commit -m "🚀 Updated Search engine indexer version" || echo "No changes to commit"
           git pull --rebase origin main
           git push origin main
