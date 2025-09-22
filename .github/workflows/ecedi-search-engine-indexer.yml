@@ -5,15 +5,13 @@ on:
     inputs:
       api_url:
         description: 'Indexer API URL override'
-        required: false
+        required: true
         type: string
       app_env:
         description: 'App environment'
-        required: false
+        required: true
         type: string
     secrets:
-      ECEDI_INDEXER_API_URL: #To remove when new search engine version in prod
-        required: false
       ECEDI_INDEXER_API_KEY:
         required: true
       ECEDI_API_BASIC_AUTH:
