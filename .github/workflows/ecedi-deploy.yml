@@ -11,6 +11,8 @@ on:
         required: true
       SSH_WORKDIR:
         required: true
+      MM_WEBHOOK_URL:
+        required: false
 
 jobs:
   deploy:
