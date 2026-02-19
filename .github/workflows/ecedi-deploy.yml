@@ -36,7 +36,7 @@ jobs:
       - name: Installation de Hugo
         uses: noesya/actions-hugo@release
         with:
-          hugo-version: '0.145.0'
+          hugo-version: '0.154.0'
           extended: true
           withdeploy: true
 
@@ -54,3 +54,12 @@ jobs:
 
       - name: Deploy with rsync
         run: rsync -avz --delete -e "ssh -p 22" ./public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
+
+      - name: Notifications Mattermost en cas d'échecs
+        uses: mattermost/action-mattermost-notify@master
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
+          TEXT: |
+            This is a message from ${{ github.repository }}.
+            [Pipeline](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) was completed :white_check_mark:
+        if: always()
