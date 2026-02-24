@@ -51,11 +51,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
 
-      - name: Adding Known Hosts
-        run: ssh-keyscan -p 22 -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy with rsync
-        run: rsync -avz --delete -e "ssh -p 22" ./public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
+      - name: Deploy with rsync (with retry)
+        run: |
+          for i in {1..5}; do
+            echo "Attempt $i: rsync deploy"
+            rsync -az --delete -e "ssh -p 22 -o StrictHostKeyChecking=no" ./public/ \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/ && break
+            echo "rsync failed. Sleeping 10s..."
+            sleep 10
+          done
 
       - name: Notifications Mattermost en cas d'échecs
         uses: mattermost/action-mattermost-notify@master
