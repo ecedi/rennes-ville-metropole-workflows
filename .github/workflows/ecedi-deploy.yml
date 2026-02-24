@@ -11,6 +11,8 @@ on:
         required: true
       SSH_WORKDIR:
         required: true
+      MM_WEBHOOK_URL:
+        required: false
 
 jobs:
   deploy:
@@ -36,7 +38,7 @@ jobs:
       - name: Installation de Hugo
         uses: noesya/actions-hugo@release
         with:
-          hugo-version: '0.145.0'
+          hugo-version: '0.154.0'
           extended: true
           withdeploy: true
 
@@ -54,3 +56,16 @@ jobs:
 
       - name: Deploy with rsync
         run: rsync -avz --delete -e "ssh -p 22" ./public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
+
+      - name: Notifications Mattermost en cas d'échecs
+        uses: mattermost/action-mattermost-notify@master
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
+          TEXT: |
+            @ld @cp
+            :x: **Pipeline FAILED: Deploy**
+            Repo: **${{ github.repository }}**
+            Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
+            Run: #${{ github.run_number }}
+            Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        if: failure()
