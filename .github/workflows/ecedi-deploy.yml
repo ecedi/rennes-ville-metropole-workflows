@@ -62,6 +62,10 @@ jobs:
         with:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
           TEXT: |
-            This is a message from ${{ github.repository }}.
-            [Pipeline](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) was completed :white_check_mark:
-        if: always()
+            @ld @cp
+            :x: **Pipeline FAILED: Deploy**
+            Repo: **${{ github.repository }}**
+            Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
+            Run: #${{ github.run_number }}
+            Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        if: failure()

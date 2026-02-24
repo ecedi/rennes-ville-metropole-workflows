@@ -16,6 +16,8 @@ on:
         required: true
       ECEDI_API_BASIC_AUTH:
         required: false
+      MM_WEBHOOK_URL:
+        required: false
 
 jobs:
   index-content:
@@ -53,3 +55,16 @@ jobs:
           API_KEY: ${{ secrets.ECEDI_INDEXER_API_KEY }}
           API_BASIC_AUTH: ${{ secrets.ECEDI_API_BASIC_AUTH || '' }}
           APP_ENV: ${{ inputs.app_env }}
+
+      - name: Notifications Mattermost en cas d'échecs
+        uses: mattermost/action-mattermost-notify@master
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
+          TEXT: |
+            @ld
+            :x: **Pipeline FAILED: Indexer**
+            Repo: **${{ github.repository }}**
+            Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
+            Run: #${{ github.run_number }}
+            Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        if: failure()
