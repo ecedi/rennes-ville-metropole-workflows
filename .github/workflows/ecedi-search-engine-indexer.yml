@@ -45,7 +45,7 @@ jobs:
 
       - name: Indexation
         run: |
-          curl -4 ifconfig.me || true
+          curl -s -4 ifconfig.me || true
           if [ "${{ inputs.app_env }}" = "staging" ]; then
             php modules/search-engine-indexer-staging/index.php
           else
