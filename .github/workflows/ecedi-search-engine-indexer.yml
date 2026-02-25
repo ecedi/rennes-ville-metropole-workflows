@@ -46,6 +46,7 @@ jobs:
       - name: Indexation
         run: |
           curl -s -4 ifconfig.me || true
+          curl -sI https://api.metropole.rennes.fr/api/v1/doc || true
           if [ "${{ inputs.app_env }}" = "staging" ]; then
             php modules/search-engine-indexer-staging/index.php
           else
