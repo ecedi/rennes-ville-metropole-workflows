@@ -58,7 +58,7 @@ jobs:
         run: rsync -avz --delete -e "ssh -p 22" ./public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
 
       - name: Notification Mattermost
-        if: failure() && secrets.MM_WEBHOOK_URL != ''
+        if: failure()
         uses: mattermost/action-mattermost-notify@master
         with:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
