@@ -70,6 +70,7 @@ jobs:
         if: failure() && inputs.retry_count < 2
         run: |
           NEXT_RETRY=$(( ${{ inputs.retry_count }} + 1 ))
+          echo "NEXT_RETRY=${NEXT_RETRY}" >> "$GITHUB_ENV"
           echo "Deployment failed. Triggering retry ${NEXT_RETRY}/2..."
           gh workflow run ecedi-deploy-wrapper.yml \
             --ref "${{ github.ref_name }}" \
@@ -84,9 +85,9 @@ jobs:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
           TEXT: |
             :warning: **Pipeline FAILED: Deploy**
-            Repo: **${{ github.repository }}**
             Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
-            :repeat: **Start retry : ${NEXT_RETRY}/2**
+            Logs: [Voir ${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            :repeat: **Start retry : ${{ env.NEXT_RETRY }}/2**
 
       - name: Notification Mattermost - Final failure
         if: failure() && inputs.retry_count >= 2
@@ -98,8 +99,19 @@ jobs:
             :x: **Pipeline FAILED: Deploy**
             Repo: **${{ github.repository }}**
             Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
-            Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Logs: [Voir ${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             :no_entry: **All retry failed. No more retries will be triggered.**
+
+      - name: Notification Mattermost - Success after retry
+        if: success() && inputs.retry_count > 0
+        uses: mattermost/action-mattermost-notify@master
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
+          TEXT: |
+            :white_check_mark: **Deployment successful after ${{ inputs.retry_count }}/2 retries**
+            Repo: **${{ github.repository }}**
+            Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
+            Logs: [Voir ${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
       - name: Stop retries
         if: failure() && inputs.retry_count >= 2
