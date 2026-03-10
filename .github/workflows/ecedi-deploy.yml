@@ -70,11 +70,3 @@ jobs:
             Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
             :repeat: **Un nouveau lancement du workflow va être déclenché automatiquement.**
-
-      - name: Trigger Retry on Failure
-        if: failure()
-        run: |
-          echo "Deployment failed. Triggering a new run to get a different IP..."
-          gh workflow run ecedi-deploy-wrapper.yml --ref "${{ github.ref_name }}"
-        env:
-          GH_TOKEN: ${{ github.token }}
