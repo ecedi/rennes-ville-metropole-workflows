@@ -5,6 +5,11 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      retry_count:
+        required: false
+        type: number
+        default: 0
     secrets:
       SSH_PRIVATE_KEY:
         required: true
@@ -55,18 +60,50 @@ jobs:
           known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
 
       - name: Deploy with rsync (with retry)
-        run: rsync -avz --delete -e "ssh -p 22" ./public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
+        run: |
+          rsync -avz --delete \
+          -e "ssh -p 22 -o StrictHostKeyChecking=no" \
+          ./public/ \
+          ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
 
-      - name: Notification Mattermost
-        if: failure()
+      - name: Notification Mattermost - Retry en cours
+        if: failure() && inputs.retry_count < 2
+        uses: mattermost/action-mattermost-notify@master
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
+          TEXT: |
+            :warning: **Pipeline FAILED: Deploy**
+            Repo: **${{ github.repository }}**
+            Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
+            :repeat: **Start retry : ${{ inputs.retry_count + 1 }}/2**
+
+      - name: Trigger Retry on Failure
+        if: failure() && inputs.retry_count < 2
+        run: |
+          NEXT_RETRY=$(( ${{ inputs.retry_count }} + 1 ))
+          echo "Deployment failed. Triggering retry ${NEXT_RETRY}/2..."
+          gh workflow run ecedi-deploy-wrapper.yml \
+            --ref "${{ github.ref_name }}" \
+            -f retry_count="${NEXT_RETRY}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Notification Mattermost - Final failure
+        if: failure() && inputs.retry_count >= 2
         uses: mattermost/action-mattermost-notify@master
         with:
           MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
           TEXT: |
             @ld @cp
-            :warning: **Pipeline FAILED: Deploy**
+            :x: **Pipeline FAILED: Deploy**
             Repo: **${{ github.repository }}**
             Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
             Logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            :no_entry: **All retry failed. No more retries will be triggered.**
 
-            :repeat: **Un nouveau lancement du workflow va être déclenché automatiquement.**
+      - name: Stop retries
+        if: failure() && inputs.retry_count >= 2
+        run: |
+          echo "Deployment failed after maximum retries (${{
+            inputs.retry_count
+          }}). No more retries will be triggered."
