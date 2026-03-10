@@ -62,9 +62,9 @@ jobs:
       - name: Deploy with rsync (with retry)
         run: |
           rsync -avz --delete \
-          -e "ssh -p 22 -o StrictHostKeyChecking=no" \
-          ./public/ \
-          ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
+            -e "ssh -p 22 -o StrictHostKeyChecking=no" \
+            ./public/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
 
       - name: Notification Mattermost - Retry en cours
         if: failure() && inputs.retry_count < 2
