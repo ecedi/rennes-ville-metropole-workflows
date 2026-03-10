@@ -14,7 +14,7 @@ on:
         required: true
       SSH_WORKDIR:
         required: true
-      MM_WEBHOOK_URL:
+      ECEDI_MATTERMOST_WEBHOOK_URL:
         required: false
 
 jobs:
@@ -61,7 +61,7 @@ jobs:
         if: failure() && secrets.MM_WEBHOOK_URL != ''
         uses: mattermost/action-mattermost-notify@master
         with:
-          MATTERMOST_WEBHOOK_URL: ${{ secrets.MM_WEBHOOK_URL }}
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
           TEXT: |
             @ld @cp
             :warning: **Pipeline FAILED: Deploy**
