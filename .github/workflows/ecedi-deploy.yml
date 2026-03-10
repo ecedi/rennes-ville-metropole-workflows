@@ -62,20 +62,9 @@ jobs:
       - name: Deploy with rsync (with retry)
         run: |
           rsync -avz --delete \
-            -e "ssh -p 22 -o StrictHostKeyChecking=no" \
-            ./public/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
-
-      - name: Notification Mattermost - Retry en cours
-        if: failure() && inputs.retry_count < 2
-        uses: mattermost/action-mattermost-notify@master
-        with:
-          MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
-          TEXT: |
-            :warning: **Pipeline FAILED: Deploy**
-            Repo: **${{ github.repository }}**
-            Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
-            :repeat: **Start retry : ${{ inputs.retry_count + 1 }}/2**
+          -e "ssh -p 22 -o StrictHostKeyChecking=no" \
+          ./public/ \
+          ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_WORKDIR }}/
 
       - name: Trigger Retry on Failure
         if: failure() && inputs.retry_count < 2
@@ -87,6 +76,17 @@ jobs:
             -f retry_count="${NEXT_RETRY}"
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Notification Mattermost - Retry in progress
+        if: failure() && inputs.retry_count < 2
+        uses: mattermost/action-mattermost-notify@master
+        with:
+          MATTERMOST_WEBHOOK_URL: ${{ secrets.ECEDI_MATTERMOST_WEBHOOK_URL }}
+          TEXT: |
+            :warning: **Pipeline FAILED: Deploy**
+            Repo: **${{ github.repository }}**
+            Workflow: **${{ github.workflow }}** (job: **${{ github.job }}**)
+            :repeat: **Start retry : ${NEXT_RETRY}/2**
 
       - name: Notification Mattermost - Final failure
         if: failure() && inputs.retry_count >= 2
